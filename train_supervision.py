@@ -1,5 +1,5 @@
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
+import lightning as pl
+from lightning.pytorch.callbacks import ModelCheckpoint
 from tools.cfg import py2cfg
 import os
 import torch
@@ -9,7 +9,7 @@ import numpy as np
 import argparse
 from pathlib import Path
 from tools.metric import Evaluator
-from pytorch_lightning.loggers import CSVLogger
+from lightning.pytorch.loggers import CSVLogger
 import random
 
 
@@ -42,9 +42,7 @@ class Supervision_Train(pl.LightningModule):
         self.metrics_val = Evaluator(num_class=config.num_classes)
 
     def forward(self, x):
-        # only net is used in the prediction/inference
-        seg_pre = self.net(x)
-        return seg_pre
+        return self.net(x)
 
     def training_step(self, batch, batch_idx):
         img, mask = batch['img'], batch['gt_semantic_seg']
@@ -93,9 +91,7 @@ class Supervision_Train(pl.LightningModule):
                       'OA': OA}
         print('train:', eval_value)
 
-        iou_value = {}
-        for class_name, iou in zip(self.config.classes, iou_per_class):
-            iou_value[class_name] = iou
+        iou_value = dict(zip(self.config.classes, iou_per_class))
         print(iou_value)
         self.metrics_train.reset()
         log_dict = {'train_mIoU': mIoU, 'train_F1': F1, 'train_OA': OA}
@@ -142,9 +138,7 @@ class Supervision_Train(pl.LightningModule):
                       'F1': F1,
                       'OA': OA}
         print('val:', eval_value)
-        iou_value = {}
-        for class_name, iou in zip(self.config.classes, iou_per_class):
-            iou_value[class_name] = iou
+        iou_value = dict(zip(self.config.classes, iou_per_class))
         print(iou_value)
 
         self.metrics_val.reset()
@@ -182,7 +176,7 @@ def main():
     if config.pretrained_ckpt_path:
         model = Supervision_Train.load_from_checkpoint(config.pretrained_ckpt_path, config=config)
 
-    trainer = pl.Trainer(devices=config.gpus, max_epochs=config.max_epoch, accelerator='auto',
+    trainer = pl.Trainer(devices=[0], max_epochs=config.max_epoch, accelerator='auto',
                          check_val_every_n_epoch=config.check_val_every_n_epoch,
                          callbacks=[checkpoint_callback], strategy='auto',
                          logger=logger)

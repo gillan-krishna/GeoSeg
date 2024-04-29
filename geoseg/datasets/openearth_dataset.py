@@ -58,8 +58,8 @@ def val_aug(img, mask):
     return img, mask
 
 class OpenEarthDataset(Dataset):
-    def __init__(self, data_root='data/openearth/test', mode='val', img_dir='images_1024', mask_dir='masks_1024',
-                 img_suffix='.tif', mask_suffix='.tif', transform=val_aug, mosaic_ratio=0.0,
+    def __init__(self, data_root='data/openearth/test', mode='val', img_dir='images', mask_dir='masks',
+                 img_suffix='.png', mask_suffix='.png', transform=val_aug, mosaic_ratio=0.0,
                  img_size=ORIGIN_IMG_SIZE):
         self.data_root = data_root
         self.img_dir = img_dir
@@ -74,20 +74,18 @@ class OpenEarthDataset(Dataset):
 
     def __getitem__(self, index):
         p_ratio = random.random()
-        if p_ratio > self.mosaic_ratio or self.mode == 'val' or self.mode == 'test':
+        # if p_ratio > self.mosaic_ratio or self.mode == 'val' or self.mode == 'test':
+        #     img, mask = self.load_img_and_mask(index)
+        if self.mode == 'val' or self.mode == 'test':
             img, mask = self.load_img_and_mask(index)
-            if self.transform:
-                img, mask = self.transform(img, mask)
         else:
             img, mask = self.load_mosaic_img_and_mask(index)
-            if self.transform:
-                img, mask = self.transform(img, mask)
-
+        if self.transform:
+            img, mask = self.transform(img, mask)
         img = torch.from_numpy(img).permute(2, 0, 1).float()
         mask = torch.from_numpy(mask).long()
         img_id = self.img_ids[index]
-        results = dict(img_id=img_id, img=img, gt_semantic_seg=mask)
-        return results
+        return dict(img_id=img_id, img=img, gt_semantic_seg=mask)
 
     def __len__(self):
         return len(self.img_ids)
@@ -103,10 +101,10 @@ class OpenEarthDataset(Dataset):
         img_id = self.img_ids[index]
         img_name = osp.join(self.data_root, self.img_dir, img_id + self.img_suffix)
         mask_name = osp.join(self.data_root, self.mask_dir, img_id + self.mask_suffix)
-        # img = Image.open(img_name).convert('RGB')
-        # mask = Image.open(mask_name).convert('L')
-        img = Image.fromarray(self.load_multiband(img_name)).convert('RGB')
-        mask = Image.fromarray(self.load_grayscale(mask_name)).convert('L')
+        img = Image.open(img_name).convert('RGB')
+        mask = Image.open(mask_name).convert('L')
+        # img = Image.fromarray(self.load_multiband(img_name)).convert('RGB')
+        # mask = Image.fromarray(self.load_grayscale(mask_name)).convert('L')
         return img, mask
     
     def load_mosaic_img_and_mask(self, index):
@@ -238,4 +236,12 @@ class OpenEarthDataset(Dataset):
         ax2.imshow(mask)
         ax2.set_title('Mask ' + str(img_id)+'.png')
         ax2.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize='large')
+
+    # def load_multiband(path: str):
+    #     src = rasterio.open(path, "r")
+    #     return (np.moveaxis(src.read(), 0, -1)).astype(np.uint8)
+
+    # def load_grayscale(path: str):
+    #     src = rasterio.open(path, "r")
+    #     return (src.read(1)).astype(np.uint8)
     
