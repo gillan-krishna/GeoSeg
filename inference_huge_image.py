@@ -1,3 +1,5 @@
+#  python GeoSeg/inference_huge_image.py -i data/openearth/val/images -c GeoSeg/config/openearth/ftunetformer.py -o fig_results/openearth/ftunetformer -t 'lr' -ph 1024 -pw 1024 -b 2 -d None
+
 import argparse
 from pathlib import Path
 import glob
@@ -49,6 +51,27 @@ def pv2rgb(mask):  # Potsdam and vaihingen
     mask_rgb[np.all(mask_convert == 5, axis=0)] = [0, 0, 255]
     return mask_rgb
 
+def oem2rgb(mask):
+    Unknown = np.array([0, 0, 0])  # label 0
+    Agri = np.array([51, 255, 51]) # label 1
+    Road = np.array([255, 255, 255]) # label 2
+    Water = np.array([0, 128, 255]) # label 3
+    Veg = np.array([0, 102, 51]) # label 4
+    Builtup = np.array([128, 128, 128]) # label 5
+    Bareland = np.array([255, 128, 0]) # label 6
+
+    h, w = mask.shape[0], mask.shape[1]
+    mask_rgb = np.zeros(shape=(h, w, 3), dtype=np.uint8)
+    mask_convert = mask[np.newaxis, :, :]
+    mask_rgb[np.all(mask_convert == 0, axis=0)] = Unknown
+    mask_rgb[np.all(mask_convert == 1, axis=0)] = Agri
+    mask_rgb[np.all(mask_convert == 2, axis=0)] = Road
+    mask_rgb[np.all(mask_convert == 3, axis=0)] = Water
+    mask_rgb[np.all(mask_convert == 4, axis=0)] = Veg
+    mask_rgb[np.all(mask_convert == 5, axis=0)] = Builtup
+    mask_rgb[np.all(mask_convert == 6, axis=0)] = Bareland
+    return mask_rgb
+
 
 def landcoverai_to_rgb(mask):
     w, h = mask.shape[0], mask.shape[1]
@@ -81,14 +104,14 @@ def uavid2rgb(mask):
 def get_args():
     parser = argparse.ArgumentParser()
     arg = parser.add_argument
-    arg("-i", "--image_path", type=Path, required=True, help="Path to  huge image folder")
-    arg("-c", "--config_path", type=Path, required=True, help="Path to  config")
+    arg("-i", "--image_path", type=Path, required=True, help="Path to huge image folder")
+    arg("-c", "--config_path", type=Path, required=True, help="Path to config")
     arg("-o", "--output_path", type=Path, help="Path to save resulting masks.", required=True)
     arg("-t", "--tta", help="Test time augmentation.", default=None, choices=[None, "d4", "lr"])
     arg("-ph", "--patch-height", help="height of patch size", type=int, default=512)
     arg("-pw", "--patch-width", help="width of patch size", type=int, default=512)
     arg("-b", "--batch-size", help="batch size", type=int, default=2)
-    arg("-d", "--dataset", help="dataset", default="pv", choices=["pv", "landcoverai", "uavid", "building"])
+    arg("-d", "--dataset", help="dataset", default="pv", choices=["pv", "landcoverai", "uavid", "building", "openearth", "None"])
     return parser.parse_args()
 
 
@@ -223,6 +246,8 @@ def main():
             output_mask = uavid2rgb(output_mask)
         elif args.dataset == 'building':
             output_mask = building_to_rgb(output_mask)
+        elif args.dataset == 'openearth':
+            output_mask = oem2rgb(output_mask)
         else:
             output_mask = output_mask
         # print(img_shape, output_mask.shape)
