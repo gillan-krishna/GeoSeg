@@ -18,6 +18,7 @@ from tqdm import tqdm
 from train_supervision import *
 import random
 import os
+from tools.array2raster import array2raster
 
 
 def seed_everything(seed):
@@ -202,7 +203,7 @@ def main():
         img_paths.extend(glob.glob(os.path.join(args.image_path, ext)))
     img_paths.sort()
     # print(img_paths)
-    for img_path in img_paths:
+    for img_path in tqdm(img_paths):
         img_name = img_path.split('/')[-1]
         # print('origin mask', original_mask.shape)
         dataset, width_pad, height_pad, output_width, output_height, img_pad, img_shape = \
@@ -252,7 +253,8 @@ def main():
             output_mask = output_mask
         # print(img_shape, output_mask.shape)
         # assert img_shape == output_mask.shape
-        cv2.imwrite(os.path.join(args.output_path, img_name), output_mask)
+        # cv2.imwrite(os.path.join(args.output_path, img_name), output_mask)
+        array2raster(arr=output_mask, new_file= os.path.join(args.output_path, img_name), ref_file= img_path)
 
 
 if __name__ == "__main__":
