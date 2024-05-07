@@ -254,7 +254,7 @@ def main():
         # print(img_shape, output_mask.shape)
         # assert img_shape == output_mask.shape
         # cv2.imwrite(os.path.join(args.output_path, img_name), output_mask)
-        array2raster(arr=output_mask, new_file= os.path.join(args.output_path, img_name), ref_file= img_path)
+        array2raster(arr=output_mask, new_file= os.path.join(args.output_path, img_name).replace('.png', '.tif'), ref_file= img_path)
 
 
 if __name__ == "__main__":

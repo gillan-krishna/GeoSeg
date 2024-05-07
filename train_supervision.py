@@ -248,8 +248,6 @@ def main():
     # logger = CSVLogger('lightning_logs', name=config.log_name)
     logger = NeptuneLogger(project="gillan-k/OEM-UF",
     api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiIyYWRiZGVlNC04NjA2LTRlMmYtODE4OS0zYWQ4NjFhYTEyMDIifQ==",
-    # upload_stderr=False,
-    # upload_stdout=False,
 )
 
     model = Supervision_Train(config)
