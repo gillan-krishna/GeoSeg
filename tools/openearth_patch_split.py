@@ -29,14 +29,17 @@ def seed_everything(seed):
     torch.backends.cudnn.benchmark = True
 
 Unknown = np.array([0, 0, 0])  # label 0
-Agri = np.array([51, 255, 51]) # label 1
-Road = np.array([255, 255, 255]) # label 2
-Water = np.array([0, 128, 255]) # label 3
-Veg = np.array([0, 102, 51]) # label 4
-Builtup = np.array([128, 128, 128]) # label 5
-Bareland = np.array([255, 128, 0]) # label 6
+Bareland = np.array([128, 0, 0]) # label 1
+Rangeland = np.array([0, 255, 36]) # label 2
+Developed = np.array([148, 148, 148]) # label 3
+Road = np.array([255, 255, 255]) # label 4
+Tree = np.array([34, 97, 38]) # label 5
+Water = np.array([0, 69, 255]) # label 6
+Agri = np.array([75, 181, 73]) # label 7
+Building = np.array([222, 31, 7]) # label 8
 
-num_classes = 7
+
+num_classes = 9
 
 # split huge RS image to small patches
 def parse_args():
@@ -57,23 +60,27 @@ def label2rgb(mask):
     mask_rgb = np.zeros(shape=(h, w, 3), dtype=np.uint8)
     mask_convert = mask[np.newaxis, :, :]
     mask_rgb[np.all(mask_convert == 0, axis=0)] = Unknown
-    mask_rgb[np.all(mask_convert == 1, axis=0)] = Agri
-    mask_rgb[np.all(mask_convert == 2, axis=0)] = Road
-    mask_rgb[np.all(mask_convert == 3, axis=0)] = Water
-    mask_rgb[np.all(mask_convert == 4, axis=0)] = Veg
-    mask_rgb[np.all(mask_convert == 5, axis=0)] = Builtup
-    mask_rgb[np.all(mask_convert == 6, axis=0)] = Bareland
+    mask_rgb[np.all(mask_convert == 1, axis=0)] = Bareland
+    mask_rgb[np.all(mask_convert == 2, axis=0)] = Rangeland
+    mask_rgb[np.all(mask_convert == 3, axis=0)] = Developed
+    mask_rgb[np.all(mask_convert == 4, axis=0)] = Road
+    mask_rgb[np.all(mask_convert == 5, axis=0)] = Tree
+    mask_rgb[np.all(mask_convert == 6, axis=0)] = Water
+    mask_rgb[np.all(mask_convert == 7, axis=0)] = Agri
+    mask_rgb[np.all(mask_convert == 8, axis=0)] = Building
     return mask_rgb
 
 def rgb2label(label):
     label_seg = np.zeros(label.shape[:2], dtype=np.uint8)
     label_seg[np.all(label == Unknown, axis=-1)] = 0
-    label_seg[np.all(label == Agri, axis=-1)] = 1
-    label_seg[np.all(label == Road, axis=-1)] = 2
-    label_seg[np.all(label == Water, axis=-1)] = 3
-    label_seg[np.all(label == Veg, axis=-1)] = 4
-    label_seg[np.all(label == Builtup, axis=-1)] = 5
-    label_seg[np.all(label == Bareland, axis=-1)] = 6
+    label_seg[np.all(label == Bareland, axis=-1)] = 1
+    label_seg[np.all(label == Rangeland, axis=-1)] = 2
+    label_seg[np.all(label == Developed, axis=-1)] = 3
+    label_seg[np.all(label == Road, axis=-1)] = 4
+    label_seg[np.all(label == Tree, axis=-1)] = 5
+    label_seg[np.all(label == Water, axis=-1)] = 6
+    label_seg[np.all(label == Agri, axis=-1)] = 7
+    label_seg[np.all(label == Building, axis=-1)] = 8
     return label_seg
 
 
@@ -114,11 +121,8 @@ def patch_format(inp):  # sourcery skip: avoid-builtin-shadow, low-code-quality
     img_paths = [f for f in img_paths if f.split('/')[-1] in np.loadtxt(list_file, dtype=str)]
 
     # print(img_paths)
-    mask_paths = [f.replace("/images/", "/relabelled/") for f in img_paths]
+    mask_paths = [f.replace("/images/", "/labels/") for f in img_paths]
     for img_path, mask_path in zip(img_paths, mask_paths):
-        # print(img_path.split('/')[-1])
-        # print(mode)
-
         img = imread(img_path)
         mask = imread(mask_path)
 

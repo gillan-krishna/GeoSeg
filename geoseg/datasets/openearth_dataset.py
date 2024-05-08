@@ -11,10 +11,10 @@ import rasterio
 import matplotlib.patches as mpatches
 from PIL import Image
 import random
-from .transform import *
+from transform import *
 
-CLASSES = ('Unknown', 'Agriculture', 'Roads', 'Water', 'OtherVeg', 'Building', 'Bareland')
-PALETTE = [[0, 0, 0], [51, 255, 51], [255, 255, 255], [0, 128, 255], [0, 102, 51], [128, 128, 128], [255, 128, 0]]
+CLASSES = ('Unknown', 'Bareland', 'Rangeland', 'Developed', 'Road', 'Tree', 'Water', 'Agriculture', 'Building')
+PALETTE = [[0, 0, 0], [128, 0, 0], [0, 255, 36], [148, 148, 148], [255, 255, 255], [34, 97, 38], [0, 69, 255], [75, 181, 73], [222, 31, 7]]
 
 ORIGIN_IMG_SIZE = (1024, 1024)
 INPUT_IMG_SIZE = (1024, 1024)
@@ -236,12 +236,3 @@ class OpenEarthDataset(Dataset):
         ax2.imshow(mask)
         ax2.set_title('Mask ' + str(img_id)+'.png')
         ax2.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize='large')
-
-    # def load_multiband(path: str):
-    #     src = rasterio.open(path, "r")
-    #     return (np.moveaxis(src.read(), 0, -1)).astype(np.uint8)
-
-    # def load_grayscale(path: str):
-    #     src = rasterio.open(path, "r")
-    #     return (src.read(1)).astype(np.uint8)
-    
