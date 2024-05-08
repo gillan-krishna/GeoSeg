@@ -56,8 +56,8 @@ class Supervision_Train(pl.LightningModule):
         loss = self.loss(prediction, mask)
 
         if self.config.use_aux_loss:
-            # pre_mask = nn.Softmax(dim=1)(prediction[0])
-            pre_mask = nn.Softmax(dim=1)(prediction)
+            pre_mask = nn.Softmax(dim=1)(prediction[0])
+            # pre_mask = nn.Softmax(dim=1)(prediction)
         else:
             pre_mask = nn.Softmax(dim=1)(prediction)
 
