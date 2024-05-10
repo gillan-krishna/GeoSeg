@@ -11,7 +11,7 @@ import rasterio
 import matplotlib.patches as mpatches
 from PIL import Image
 import random
-from transform import *
+from .transform import *
 
 CLASSES = ('Unknown', 'Bareland', 'Rangeland', 'Developed', 'Road', 'Tree', 'Water', 'Agriculture', 'Building')
 PALETTE = [[0, 0, 0], [128, 0, 0], [0, 255, 36], [148, 148, 148], [255, 255, 255], [34, 97, 38], [0, 69, 255], [75, 181, 73], [222, 31, 7]]

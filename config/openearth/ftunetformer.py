@@ -16,8 +16,6 @@ backbone_lr = 6e-5
 backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
-# class_weightage = Tensor([0.16666667*1.15, 0.16666667*1.5, 0.16666667*2.5, 0.16666667, 0.16666667,
-#        0.16666667]).cuda()
 
 weights_name = "ftunetformer-512-ms-crop"
 weights_path = f"model_weights/openearth/{weights_name}"
